@@ -1,0 +1,5 @@
+adapters:
+  repository:
+    csv:
+      file-path: ./src/main/resources/payment.csv
+      temp-file-path: ./src/main/resources/payment.csv.tmp
