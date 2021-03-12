@@ -3,6 +3,7 @@ package com.spw.payments.adapters.api.rest;
 import com.spw.payments.adapters.api.rest.request.PaymentRequest;
 import com.spw.payments.adapters.api.rest.response.PaymentResponse;
 import com.spw.payments.domain.PaymentService;
+import com.spw.payments.domain.model.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,31 +20,35 @@ public class PaymentsController {
 
     @GetMapping("")
     public ResponseEntity<List<PaymentResponse>> getPayments() {
-        return ResponseEntity.ok(
-                mapper.toResponse(
-                        paymentService.getAll()
-                )
-        );
+        List<Payment> payments = paymentService.getAll();
+        List<PaymentResponse> body = mapper.toResponse(payments);
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse> getSinglePayment(@PathVariable long id) {
-        return ResponseEntity.ok(mapper.toResponse(paymentService.get(id)));
+        Payment payment = paymentService.get(id);
+        PaymentResponse body = mapper.toResponse(payment);
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("")
     public ResponseEntity<PaymentResponse> addPayment(@RequestBody @Validated PaymentRequest payment) {
-        return ResponseEntity.ok(mapper.toResponse(paymentService.create(mapper.toDomain(payment))));
+        Payment domain = mapper.toDomain(payment);
+        PaymentResponse body = mapper.toResponse(paymentService.create(domain));
+        return ResponseEntity.ok(body);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PaymentResponse> updatePayment(@RequestBody @Validated PaymentRequest payment, @PathVariable long id) {
-        return ResponseEntity.ok(mapper.toResponse(paymentService.update(id, mapper.toDomain(payment))));
+        Payment domain = mapper.toDomain(payment);
+        PaymentResponse body = mapper.toResponse(paymentService.update(id, domain));
+        return ResponseEntity.ok(body);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable long id) {
+    public ResponseEntity<?> deletePayment(@PathVariable long id) {
         paymentService.delete(id);
         return ResponseEntity.ok().build();
     }
