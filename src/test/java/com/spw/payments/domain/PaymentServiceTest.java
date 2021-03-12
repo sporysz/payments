@@ -1,7 +1,9 @@
 package com.spw.payments.domain;
 
 import com.spw.payments.domain.model.Payment;
+import com.spw.payments.domain.model.PaymentNotFoundException;
 import com.spw.payments.domain.port.PaymentRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,9 +12,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
@@ -21,7 +24,28 @@ class PaymentServiceTest {
     private PaymentRepository repository;
 
     @InjectMocks
-   private  PaymentService underTest;
+    private PaymentService underTest;
+
+    @Test
+    void shouldThrowExceptionWhengGettingNonExsistingId() {
+        //given
+        long id = 0;
+        when(repository.get(id)).thenReturn(Optional.empty());
+        //when
+        //then
+        assertThrows(PaymentNotFoundException.class, () -> underTest.get(id));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonExsistingId() {
+        //given
+        Payment payment = Payment.builder().build();
+        long id = 0;
+        when(repository.update(id,payment)).thenReturn(Optional.empty());
+        //when
+        //then
+        assertThrows(PaymentNotFoundException.class, () -> underTest.update(id, payment));
+    }
 
     @Test
     void testPaymentCreation() {
@@ -35,16 +59,19 @@ class PaymentServiceTest {
 
     @Test
     void testPaymentUpdate() {
+        //given
         Payment payment = Payment.builder().build();
         long id = 0;
+        when(repository.update(id,payment)).thenReturn(Optional.of(payment));
         //when
         underTest.update(id, payment);
         //then
-        verify(repository, times(1)).update(id,payment);
+        verify(repository, times(1)).update(id, payment);
     }
 
     @Test
     void testPaymentDelete() {
+        //given
         long id = 0;
         //when
         underTest.delete(id);
@@ -54,7 +81,10 @@ class PaymentServiceTest {
 
     @Test
     void testGetPaymentById() {
+        //given
         long id = 0;
+        when(repository.get(id)).thenReturn(Optional.of(Payment.builder().build()));
+
         //when
         underTest.get(id);
         //then
@@ -63,7 +93,7 @@ class PaymentServiceTest {
 
     @Test
     void testGetAllPaymnets() {
-
+        //given
         underTest.getAll();
         //then
         verify(repository, times(1)).getAll();

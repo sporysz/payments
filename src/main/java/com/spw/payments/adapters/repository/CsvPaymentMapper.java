@@ -19,7 +19,7 @@ public class CsvPaymentMapper {
 
     public static final String[] HEADER = {ID, AMOUNT, CURRENCY, USER_ID, ACCOUNT_NUMBER};
 
-    public Payment recordToPayment(CSVRecord r) {
+    public Payment toDomain(CSVRecord r) {
         return Payment.builder()
                 .id(Long.parseLong(r.get(ID)))
                 .amount(new BigDecimal(r.get(AMOUNT)))

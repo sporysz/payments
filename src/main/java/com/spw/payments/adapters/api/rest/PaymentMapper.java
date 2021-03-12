@@ -1,7 +1,7 @@
-package com.spw.payments.adapters.api;
+package com.spw.payments.adapters.api.rest;
 
-import com.spw.payments.adapters.api.request.PaymentRequest;
-import com.spw.payments.adapters.api.response.PaymentResponse;
+import com.spw.payments.adapters.api.rest.request.PaymentRequest;
+import com.spw.payments.adapters.api.rest.response.PaymentResponse;
 import com.spw.payments.domain.model.Payment;
 import nl.garvelink.iban.IBAN;
 import org.springframework.stereotype.Component;

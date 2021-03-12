@@ -1,6 +1,7 @@
 package com.spw.payments.domain;
 
 import com.spw.payments.domain.model.Payment;
+import com.spw.payments.domain.model.PaymentNotFoundException;
 import com.spw.payments.domain.port.PaymentRepository;
 
 import java.util.List;
@@ -18,14 +19,14 @@ public final class PaymentService {
     }
 
     public Payment update(long id, Payment payment) {
-        return repository.update(id, payment);
+        return repository.update(id, payment).orElseThrow(() -> new PaymentNotFoundException(id));
     }
     public void delete(long id) {
         repository.delete(id);
     }
 
     public Payment get(long id) {
-        return repository.get(id);
+        return repository.get(id).orElseThrow(() -> new PaymentNotFoundException(id));
     }
 
     public List<Payment> getAll() {

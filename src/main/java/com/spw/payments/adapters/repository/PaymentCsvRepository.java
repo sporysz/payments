@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +18,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.spw.payments.adapters.repository.CsvPaymentMapper.*;
@@ -61,7 +63,7 @@ public class PaymentCsvRepository implements PaymentRepository {
     }
 
     @Override
-    public Payment update(long id, Payment payment) {
+    public Optional<Payment> update(long id, Payment payment) {
         Payment updated = null;
         try (
                 Reader reader = newBufferedReader(paymentsCsv);
@@ -75,7 +77,7 @@ public class PaymentCsvRepository implements PaymentRepository {
             handleIOException(e);
         }
         renameAndRemove(tempPaymentsCsv, paymentsCsv);
-        return updated;
+        return Optional.ofNullable(updated);
     }
 
 
@@ -96,10 +98,10 @@ public class PaymentCsvRepository implements PaymentRepository {
 
 
     @Override
-    public Payment get(long id) {
+    public Optional<Payment> get(long id) {
         Payment payment = null;
         if (!doesFileExist(paymentsCsv)) {
-            return payment;
+            return Optional.empty();
         }
         try (
                 Reader reader = newBufferedReader(paymentsCsv);
@@ -111,7 +113,7 @@ public class PaymentCsvRepository implements PaymentRepository {
             handleIOException(e);
         }
 
-        return payment;
+        return Optional.ofNullable(payment);
     }
 
     @Override
@@ -136,7 +138,7 @@ public class PaymentCsvRepository implements PaymentRepository {
     private List<Payment> getPayments(CSVParser csvParser) throws IOException {
         return csvParser.getRecords()
                 .stream()
-                .map(mapper::recordToPayment)
+                .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
@@ -168,7 +170,7 @@ public class PaymentCsvRepository implements PaymentRepository {
         File updated = tempPaymentsCsv.toFile();
         File old = paymentsCsv.toFile();
         boolean deleted = old.delete();
-        boolean renamed = updated.renameTo(old);
+        boolean renamed = updated.renameTo(old)                           ;
         if (!deleted || !renamed) {
             log.error("Problem With swapping files");
           throw new RuntimeException("Problem With swapping files");
@@ -199,7 +201,7 @@ public class PaymentCsvRepository implements PaymentRepository {
         return csvParser.getRecords()
                 .stream()
                 .filter(r -> idString.equals(r.get(ID)))
-                .map(mapper::recordToPayment)
+                .map(mapper::toDomain)
                 .findFirst()
                 .orElse(null);
     }
