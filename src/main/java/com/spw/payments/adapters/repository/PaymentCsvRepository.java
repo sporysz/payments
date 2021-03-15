@@ -63,8 +63,8 @@ public class PaymentCsvRepository implements PaymentRepository {
     }
 
     @Override
-    public Optional<Payment> update(long id, Payment payment) {
-        Payment updated = null;
+    public boolean update(long id, Payment payment) {
+        boolean updated = false;
         try (
                 Reader reader = newBufferedReader(paymentsCsv);
                 CSVParser csvParser = new CSVParser(reader, DEFAULT_SKIP_HEADER);
@@ -77,7 +77,7 @@ public class PaymentCsvRepository implements PaymentRepository {
             handleIOException(e);
         }
         renameAndRemove(tempPaymentsCsv, paymentsCsv);
-        return Optional.ofNullable(updated);
+        return updated;
     }
 
 
@@ -151,14 +151,13 @@ public class PaymentCsvRepository implements PaymentRepository {
         }
     }
 
-    private Payment update(long id, Payment payment, CSVParser csvParser, CSVPrinter csvPrinter) throws IOException {
-        Payment updated = null;
+    private boolean update(long id, Payment payment, CSVParser csvParser, CSVPrinter csvPrinter) throws IOException {
+        boolean updated = false;
         for (CSVRecord record : csvParser) {
             if (recordHasSameId(record, id)) {
                 csvPrinter.printRecord(prepareRecord(payment, id));
                 payment.setId(id);
-                updated = payment;
-                updated.setId(id);
+                updated = true;
             } else {
                 csvPrinter.printRecord(record);
             }

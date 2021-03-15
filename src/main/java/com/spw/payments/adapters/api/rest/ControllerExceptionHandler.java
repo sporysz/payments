@@ -22,7 +22,7 @@ public class ControllerExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(PaymentNotFoundException.class)
+    @ExceptionHandler(PaymentNotFoundRestException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleBookNotFound(RuntimeException ex) {
         log.error(ex.getMessage(),ex);

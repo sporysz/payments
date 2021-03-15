@@ -24,7 +24,7 @@ class PaymentServiceTest {
     private PaymentRepository repository;
 
     @InjectMocks
-    private PaymentService underTest;
+    private PaymentServiceImpl underTest;
 
     @Test
     void shouldThrowExceptionWhengGettingNonExsistingId() {
@@ -41,7 +41,7 @@ class PaymentServiceTest {
         //given
         Payment payment = Payment.builder().build();
         long id = 0;
-        when(repository.update(id,payment)).thenReturn(Optional.empty());
+        when(repository.update(id,payment)).thenReturn(false);
         //when
         //then
         assertThrows(PaymentNotFoundException.class, () -> underTest.update(id, payment));
@@ -58,11 +58,11 @@ class PaymentServiceTest {
     }
 
     @Test
-    void testPaymentUpdate() {
+    void testPaymentUpdate() throws PaymentNotFoundException {
         //given
         Payment payment = Payment.builder().build();
         long id = 0;
-        when(repository.update(id,payment)).thenReturn(Optional.of(payment));
+        when(repository.update(id,payment)).thenReturn(true);
         //when
         underTest.update(id, payment);
         //then
@@ -80,7 +80,7 @@ class PaymentServiceTest {
     }
 
     @Test
-    void testGetPaymentById() {
+    void testGetPaymentById() throws PaymentNotFoundException {
         //given
         long id = 0;
         when(repository.get(id)).thenReturn(Optional.of(Payment.builder().build()));

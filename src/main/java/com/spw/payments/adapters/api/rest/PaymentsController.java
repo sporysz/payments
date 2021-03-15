@@ -2,12 +2,15 @@ package com.spw.payments.adapters.api.rest;
 
 import com.spw.payments.adapters.api.rest.request.PaymentRequest;
 import com.spw.payments.adapters.api.rest.response.PaymentResponse;
-import com.spw.payments.domain.PaymentService;
+import com.spw.payments.domain.model.PaymentNotFoundException;
+import com.spw.payments.domain.port.PaymentService;
 import com.spw.payments.domain.model.Payment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -27,7 +30,12 @@ public class PaymentsController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PaymentResponse> getSinglePayment(@PathVariable long id) {
-        Payment payment = paymentService.get(id);
+        Payment payment;
+        try {
+            payment = paymentService.get(id);
+        } catch (PaymentNotFoundException e) {
+            throw new PaymentNotFoundRestException(e);
+        }
         PaymentResponse body = mapper.toResponse(payment);
         return ResponseEntity.ok(body);
     }
@@ -36,20 +44,24 @@ public class PaymentsController {
     public ResponseEntity<PaymentResponse> addPayment(@RequestBody @Validated PaymentRequest payment) {
         Payment domain = mapper.toDomain(payment);
         PaymentResponse body = mapper.toResponse(paymentService.create(domain));
-        return ResponseEntity.ok(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PaymentResponse> updatePayment(@RequestBody @Validated PaymentRequest payment, @PathVariable long id) {
+    public ResponseEntity<?> updatePayment(@RequestBody @Validated PaymentRequest payment, @PathVariable long id) {
         Payment domain = mapper.toDomain(payment);
-        PaymentResponse body = mapper.toResponse(paymentService.update(id, domain));
-        return ResponseEntity.ok(body);
+        try {
+            paymentService.update(id, domain);
+        } catch (PaymentNotFoundException e) {
+            throw new PaymentNotFoundRestException(e);
+        }
+        return ResponseEntity.ok().build();
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePayment(@PathVariable long id) {
         paymentService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.accepted().build();
     }
 }

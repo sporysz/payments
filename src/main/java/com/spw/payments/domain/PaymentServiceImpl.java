@@ -3,14 +3,15 @@ package com.spw.payments.domain;
 import com.spw.payments.domain.model.Payment;
 import com.spw.payments.domain.model.PaymentNotFoundException;
 import com.spw.payments.domain.port.PaymentRepository;
+import com.spw.payments.domain.port.PaymentService;
 
 import java.util.List;
 
-public final class PaymentService {
+public final class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository repository;
 
-    public PaymentService(PaymentRepository repository) {
+    public PaymentServiceImpl(PaymentRepository repository) {
         this.repository = repository;
     }
 
@@ -18,14 +19,17 @@ public final class PaymentService {
         return repository.save(payment);
     }
 
-    public Payment update(long id, Payment payment) {
-        return repository.update(id, payment).orElseThrow(() -> new PaymentNotFoundException(id));
+    public void update(long id, Payment payment) throws PaymentNotFoundException {
+        if (!repository.update(id, payment)) {
+           throw new PaymentNotFoundException(id);
+        }
     }
+
     public void delete(long id) {
         repository.delete(id);
     }
 
-    public Payment get(long id) {
+    public Payment get(long id) throws PaymentNotFoundException {
         return repository.get(id).orElseThrow(() -> new PaymentNotFoundException(id));
     }
 
