@@ -65,6 +65,9 @@ public class PaymentCsvRepository implements PaymentRepository {
     @Override
     public boolean update(long id, Payment payment) {
         boolean updated = false;
+        if (!doesFileExist(paymentsCsv)) {
+            return updated;
+        }
         try (
                 Reader reader = newBufferedReader(paymentsCsv);
                 CSVParser csvParser = new CSVParser(reader, DEFAULT_SKIP_HEADER);
@@ -83,6 +86,9 @@ public class PaymentCsvRepository implements PaymentRepository {
 
     @Override
     public void delete(long id) {
+        if (!doesFileExist(paymentsCsv)) {
+            return;
+        }
         try (
                 Reader reader = newBufferedReader(paymentsCsv);
                 CSVParser csvParser = new CSVParser(reader, DEFAULT_SKIP_HEADER);
