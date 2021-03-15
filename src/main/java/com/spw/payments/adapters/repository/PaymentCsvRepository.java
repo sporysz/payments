@@ -10,7 +10,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.spw.payments.adapters.repository.CsvPaymentMapper.*;
+import static com.spw.payments.adapters.repository.CsvPaymentMapper.HEADER;
+import static com.spw.payments.adapters.repository.CsvPaymentMapper.ID;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Files.newBufferedWriter;
 import static java.nio.file.StandardOpenOption.*;

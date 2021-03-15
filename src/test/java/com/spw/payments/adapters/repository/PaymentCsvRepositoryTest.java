@@ -14,22 +14,13 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
 
+import static com.spw.payments.TestDataProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PaymentCsvRepositoryTest {
 
     public static final String TEST_CSV = "./test.csv";
     public static final String TEST_CSV_TMP = "./test.csv.tmp";
-    public static final long USER_ID = 0L;
-    public static final long WRONG_ID = 1000L;
-    public static final String USD_STR = "USD";
-    public static final Currency USD = Currency.getInstance(USD_STR);
-    public static final String AMOUNT_1_STR = "12.34";
-    public static final String AMOUNT_2_STR = "10.34";
-    public static final BigDecimal AMOUNT_1 = new BigDecimal(AMOUNT_1_STR);
-    public static final BigDecimal AMOUNT_2 = new BigDecimal(AMOUNT_2_STR);
-    public static final String IBAN_STR = "GB14BARC20035317455188";
-    public static final IBAN IBAN = nl.garvelink.iban.IBAN.parse(IBAN_STR);
     private PaymentCsvRepository underTest;
 
     @BeforeEach
@@ -107,14 +98,21 @@ class PaymentCsvRepositoryTest {
         assertThat(retrieved.getAccountNumber()).isEqualTo(IBAN);
     }
 
-    private Payment preparePayment(BigDecimal amount) {
-        Payment payment = Payment.builder()
-                .userId(USER_ID)
-                .currency(USD)
-                .amount(amount)
-                .accountNumber(IBAN)
-                .build();
-        return payment;
+    @Test
+    void shouldDeleteProperly() {
+        //given
+        Payment payment1 = preparePayment(AMOUNT_1);
+        Payment payment2 = preparePayment(AMOUNT_2);
+        Payment saved1 = underTest.save(payment1);
+        Payment saved2 = underTest.save(payment2);
+        assertThat(underTest.getAll()).hasSize(2);
+        assertThat(underTest.get(saved2.getId())).isNotEmpty();
+        //when
+        underTest.delete(saved2.getId());
+        //then
+        assertThat(underTest.getAll()).hasSize(1);
+        //then
+        assertThat(underTest.get(saved1.getId())).isNotEmpty();
+        assertThat(underTest.get(saved2.getId())).isEmpty();
     }
-
 }
